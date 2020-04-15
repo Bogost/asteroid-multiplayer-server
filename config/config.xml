@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<game>
+		<fps>30</fps>
+		<space>
+			<width>600</width>
+			<height>400</height>
+		</space>
+	</game>
+	<networking>
+		<ports>
+			<game>5000</game>
+			<chat>5001</chat>
+		</ports>
+		<timeout>15</timeout>
+	</networking>
+</root>
