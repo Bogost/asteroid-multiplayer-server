@@ -5,14 +5,14 @@ import java.io.IOException;
 
 public class PlayerBullet extends PlayerObject {
 
-    private static double VELOCITY = 3;
-    private static int LASTING = 60;
+    private static double VELOCITY = 6;
+    private static int LASTING = 90;
 
     public PlayerShip ship;
     private int lifetime = PlayerBullet.LASTING;
 
     public PlayerBullet(PlayerShip ship) {
-        super(ship.player, ship.gameArena, 3, 3);
+        super(ship.player, ship.gameArena, 5, 5);
         this.ship = ship;
         setBulletVelocity();
         setBulletPosition();
@@ -32,12 +32,18 @@ public class PlayerBullet extends PlayerObject {
     }
 
     @Override
+    public void destroy() {
+        ship.nrOfCurrentBullets--;
+        gameArena.removeGameObject(this);
+    }
+
+    @Override
     public void calculatePosition() {
         addingVelocitisToCoordinates();
         cloneCalculation();
         lifetime--;
         if (lifetime <= 0) {
-            gameArena.removeGameObject(this);
+            destroy();
         }
     }
 

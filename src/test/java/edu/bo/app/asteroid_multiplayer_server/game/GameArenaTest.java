@@ -16,6 +16,7 @@ public class GameArenaTest {
     @Test
     public void addsObjectToItself() {
         Room mockRoom = Mockito.mock(Room.class);
+
         try {
             GameArena testArena = new GameArena(mockRoom);
         } catch (ParserConfigurationException e) {
@@ -28,5 +29,6 @@ public class GameArenaTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
     }
 }

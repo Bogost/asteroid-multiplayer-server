@@ -1,7 +1,10 @@
 package edu.bo.app.asteroid_multiplayer_server.game;
 
+import java.awt.Rectangle;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class GameObject {
 
@@ -102,6 +105,47 @@ public class GameObject {
         x2 = x1 + width;
         y1 = y;
         y2 = y1 + height;
+    }
+
+    private static void populateCloneQueue(Queue<Rectangle> cloneQueue, GameObject go) {
+        Rectangle r = new Rectangle((int) go.x1, (int) go.y1, (int) go.height, (int) go.width);
+        cloneQueue.add(r);
+
+        double x, y;
+        if (go.cloneX != 0) {
+            x = go.x1 + go.cloneX * go.gameArena.getWidth();
+            y = go.y1;
+            r = new Rectangle((int) x, (int) y, (int) go.height, (int) go.width);
+            cloneQueue.add(r);
+        }
+        if (go.cloneY != 0) {
+            x = go.x1;
+            y = go.y1 + go.cloneY * go.gameArena.getHeight();
+            r = new Rectangle((int) x, (int) y, (int) go.height, (int) go.width);
+            cloneQueue.add(r);
+        }
+        if (go.cloneX != 0 && go.cloneY != 0) {
+            x = go.x1 + go.cloneX * go.gameArena.getWidth();
+            y = go.y1 + go.cloneY * go.gameArena.getHeight();
+            r = new Rectangle((int) x, (int) y, (int) go.height, (int) go.width);
+            cloneQueue.add(r);
+        }
+    }
+
+    public void detectCollision(GameObject go) {
+        Queue<Rectangle> thisClones = new LinkedList<>();
+        Queue<Rectangle> goClones = new LinkedList<>();
+        GameObject.populateCloneQueue(thisClones, this);
+        GameObject.populateCloneQueue(goClones, go);
+
+        outerloop: for (Rectangle r1 : thisClones) {
+            for (Rectangle r2 : goClones) {
+                if (r1.contains(r2)) {
+                    collision(go);
+                    break outerloop;
+                }
+            }
+        }
     }
 
     public void collision(GameObject go) {};

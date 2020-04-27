@@ -1,13 +1,12 @@
 package edu.bo.app.asteroid_multiplayer_server.game;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import edu.bo.app.asteroid_multiplayer_common.ListManager;
 import edu.bo.app.asteroid_multiplayer_common.XmlLoader;
 import edu.bo.app.asteroid_multiplayer_server.Config;
 import edu.bo.app.asteroid_multiplayer_server.Room;
@@ -23,10 +22,7 @@ public class GameArena {
 
     private Room room;
 
-    private LinkedList<GameObject> gameObjects = new LinkedList<>();
-
-    private volatile Queue<GameObject> listOfObjectsToAdd = new LinkedList<>();
-    private volatile Queue<GameObject> listOfObjectsToRemove = new LinkedList<>();
+    private ListManager<GameObject> gameObjectsManager = new ListManager<>();
 
     private Point2D[] shipsPosition = new Point2D[4];
 
@@ -61,17 +57,17 @@ public class GameArena {
     private void createPlayerShips() {
         room.forEveryPlayer((p) -> {
             PlayerShip ps = new PlayerShip(p, this, shipsPosition[p.getRoomPosition()]);
-            gameObjects.add(ps);
+            gameObjectsManager.add(ps);
             p.ship = ps;
         });
     }
 
     public void addGameObject(GameObject go) {
-        listOfObjectsToAdd.add(go);
+        gameObjectsManager.add(go);
     }
 
     public void removeGameObject(GameObject go) {
-        listOfObjectsToRemove.add(go);
+        gameObjectsManager.remove(go);
     }
 
     public void start() {
@@ -90,15 +86,21 @@ public class GameArena {
                     timeStamp = System.currentTimeMillis();
                     // -----------------------------------------------------------------
                     // iterate through players
-                    for (GameObject po : gameObjects) {
+                    for (GameObject po : gameObjectsManager.getList()) {
                         po.calculatePosition();
                     }
-                    addingObjects();
-                    removingObjects();
+                    // detect collisions
+                    for (GameObject po : gameObjectsManager.getList()) {
+                        for (GameObject po2 : gameObjectsManager.getList()) {
+                            po.detectCollision(po2);
+                        }
+                    }
+                    gameObjectsManager.conductAdding();
+                    gameObjectsManager.conductRemoving();
                     // -----------------------------------------------------------------
                     timeDelay += frameTime - (System.currentTimeMillis() - timeStamp);
                     // broadcast game objects
-                    room.broadcastGame(gameObjects, (int) ((gameTime - i) / fps));
+                    room.broadcastGame(gameObjectsManager.getList(), (int) ((gameTime - i) / fps));
                     // skip frame
                     if (timeDelay < 0) {
                         System.out.println(timeDelay);
@@ -115,20 +117,6 @@ public class GameArena {
             }
         };
         th.start();
-    }
-
-    private void addingObjects() {
-        GameObject go;
-        while ((go = listOfObjectsToAdd.poll()) != null) {
-            gameObjects.add(go);
-        }
-    }
-
-    private void removingObjects() {
-        GameObject go;
-        while ((go = listOfObjectsToRemove.poll()) != null) {
-            gameObjects.remove(go);
-        }
     }
 
 }
