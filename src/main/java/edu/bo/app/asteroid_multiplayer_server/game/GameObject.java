@@ -100,6 +100,22 @@ public class GameObject {
         return y2;
     }
 
+    public double getVx() {
+        return vx;
+    }
+
+    public void setVx(double vx) {
+        this.vx = vx;
+    }
+
+    public double getVy() {
+        return vy;
+    }
+
+    public void setVy(double vy) {
+        this.vy = vy;
+    }
+
     public void place(double x, double y) {
         x1 = x;
         x2 = x1 + width;
@@ -132,20 +148,21 @@ public class GameObject {
         }
     }
 
-    public void detectCollision(GameObject go) {
+    public boolean detectCollision(GameObject go) {
         Queue<Rectangle> thisClones = new LinkedList<>();
         Queue<Rectangle> goClones = new LinkedList<>();
         GameObject.populateCloneQueue(thisClones, this);
         GameObject.populateCloneQueue(goClones, go);
 
-        outerloop: for (Rectangle r1 : thisClones) {
+        for (Rectangle r1 : thisClones) {
             for (Rectangle r2 : goClones) {
                 if (r1.contains(r2)) {
                     collision(go);
-                    break outerloop;
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     public void collision(GameObject go) {};
